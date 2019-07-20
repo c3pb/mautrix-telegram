@@ -229,22 +229,26 @@ class Bot(AbstractUser):
 
         if self.match_command(text, "id"):
             await self.handle_command_id(message, reply)
-            return
+            return True
 
         portal = po.Portal.get_by_entity(message.to_id)
 
         if self.match_command(text, "portal"):
             if not await self.check_can_use_commands(message, reply):
-                return
+                return True
             await self.handle_command_portal(portal, reply)
+            return True
         elif self.match_command(text, "invite"):
             if not await self.check_can_use_commands(message, reply):
-                return
+                return True
             try:
                 mxid = text[text.index(" ") + 1:]
             except ValueError:
                 mxid = ""
             await self.handle_command_invite(portal, reply, mxid_input=mxid)
+            return True
+        else:
+            return False
 
     def handle_service_message(self, message: MessageService) -> None:
         to_id = message.to_id  # type: TelegramID
@@ -277,8 +281,7 @@ class Bot(AbstractUser):
                       and update.message.entities and len(update.message.entities) > 0
                       and isinstance(update.message.entities[0], MessageEntityBotCommand))
         if is_command:
-            await self.handle_command(update.message)
-            return True
+            return await self.handle_command(update.message)
         return False
 
     def is_in_chat(self, peer_id) -> bool:
