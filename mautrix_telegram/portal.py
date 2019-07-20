@@ -1087,10 +1087,7 @@ class Portal:
 
     def _add_telegram_message_to_db(self, event_id: MatrixEventID, space: TelegramID,
                                     edit_index: int, response: TypeMessage) -> None:
-        try:
-            self.log.debug("Handled Matrix message: %s", response)
-        except Exception as e:
-            self.log.debug("Handled Matrix message: -unicode error-")
+        self.log.debug("Handled Matrix message: %s", response)
         self.is_duplicate(response, (event_id, space), force_hash=edit_index != 0)
         if edit_index < 0:
             prev_edit = DBMessage.get_one_by_tgid(TelegramID(response.id), space, -1)
@@ -1577,10 +1574,7 @@ class Portal:
 
     async def handle_telegram_text(self, source: 'AbstractUser', intent: IntentAPI, is_bot: bool,
                                    evt: Message) -> dict:
-        try:
-            self.log.debug(f"Sending {evt.message} to {self.mxid} by {intent.mxid}")
-        except Exception as e:
-            pass
+        self.log.debug(f"Sending {evt.message} to {self.mxid} by {intent.mxid}")
         text, html, relates_to = await formatter.telegram_to_matrix(evt, source, self.main_intent)
         await intent.set_typing(self.mxid, is_typing=False)
         msgtype = "m.notice" if is_bot and self.get_config("bot_messages_as_notices") else "m.text"
@@ -1823,10 +1817,7 @@ class Portal:
             await intent.redact(self.mxid, mxid)
             return
 
-        try:
-            self.log.debug("Handled Telegram message: %s", evt)
-        except Exception as e:
-            self.log.debug("Handled Telegram message: -unicode error-")
+        self.log.debug("Handled Telegram message: %s", evt)
         try:
             DBMessage(tgid=TelegramID(evt.id), mx_room=self.mxid, mxid=mxid,
                       tg_space=tg_space, edit_index=0).insert()
