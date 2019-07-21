@@ -1110,6 +1110,10 @@ class Portal:
             self.log.debug("Ignoring puppet-sent message by confirmed puppet user %s", sender.mxid)
             return
 
+        if message.get("format", None) == "org.matrix.custom.html" and message.get("formatted_body", "").find("<!-- local -->") >= 0:
+            self.log.debug("Ignoring local-only message")
+            return
+
         logged_in = not await sender.needs_relaybot(self)
         client = sender.client if logged_in else self.bot.client
         sender_id = sender.tgid if logged_in else self.bot.tgid
