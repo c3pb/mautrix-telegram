@@ -990,6 +990,9 @@ class Portal:
     async def _handle_matrix_text(self, sender_id: TelegramID, event_id: MatrixEventID,
                                   space: TelegramID, client: 'MautrixTelegramClient',
                                   message: Dict, reply_to: TelegramID) -> None:
+        if message.get("format", None) == "org.matrix.custom.html" and message.get("formatted_body", "").startswith("<!-- local -->"):
+            self.log.debug("not bridging local message")
+            return
         lock = self.require_send_lock(sender_id)
         async with lock:
             lp = self.get_config("telegram_link_preview")
